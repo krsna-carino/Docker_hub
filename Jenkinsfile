@@ -1,28 +1,39 @@
 pipeline {
     agent any 
-    environment {
-    DOCKERHUB_CREDENTIALS = credentials('Docker-credits')
-    }
-    stages { 
 
+    environment {
+        // Pull Docker Hub credentials
+        DOCKERHUB_CREDENTIALS_USR = credentials('Docker-credits_USR')
+        DOCKERHUB_CREDENTIALS_PSW = credentials('Docker-credits_PSW')
+        IMAGE_NAME = 'krsna0707/sampleapp'
+    }
+
+    stages { 
         stage('Build docker image') {
             steps {  
-                sh ' docker build -t krsna0707/sampleapp:$BUILD_NUMBER .'
+                echo '🐳 Building Docker image...'
+                sh "docker build -t ${IMAGE_NAME}:${BUILD_NUMBER} ."
             }
         }
-        stage('login to dockerhub') {
+
+        stage('Login to Docker Hub') {
             steps{
+                echo '🔑 Logging in to Docker Hub...'
                 sh 'echo $DOCKERHUB_CREDENTIALS_PSW | docker login -u $DOCKERHUB_CREDENTIALS_USR --password-stdin'
             }
         }
-        stage('push image') {
+
+        stage('Push Docker Image') {
             steps{
-                sh ' docker push krsna0707/sampleapp:$BUILD_NUMBER'
+                echo '🚀 Pushing image to Docker Hub...'
+                sh "docker push ${IMAGE_NAME}:${BUILD_NUMBER}"
             }
         }
-}
-post {
+    }
+
+    post {
         always {
+            echo '🧹 Logging out of Docker Hub...'
             sh 'docker logout'
         }
     }
