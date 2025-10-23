@@ -1,5 +1,5 @@
 FROM alpine:3.10
-MAINTAINER krsna
+MAINTAINER krsna0707
 RUN mkdir /usr/local/tomcat/
 WORKDIR /usr/local/tomcat
 RUN apk --no-cache add curl && \
