@@ -1,31 +1,25 @@
 pipeline {
-    agent any 
-
+    agent any
     environment {
-        // Pull Docker Hub credentials
-        DOCKERHUB_CREDENTIALS_USR = credentials('Docker-credits_USR')
-        DOCKERHUB_CREDENTIALS_PSW = credentials('Docker-credits_PSW')
+        DOCKER_CREDENTIALS = credentials('Docker-credits')  // your actual Jenkins credential ID
         IMAGE_NAME = 'krsna0707/sampleapp'
     }
 
-    stages { 
-        stage('Build docker image') {
-            steps {  
-                echo '🐳 Building Docker image...'
+    stages {
+        stage('Build Docker Image') {
+            steps {
                 sh "docker build -t ${IMAGE_NAME}:${BUILD_NUMBER} ."
             }
         }
 
         stage('Login to Docker Hub') {
-            steps{
-                echo '🔑 Logging in to Docker Hub...'
-                sh 'echo $DOCKERHUB_CREDENTIALS_PSW | docker login -u $DOCKERHUB_CREDENTIALS_USR --password-stdin'
+            steps {
+                sh 'echo $DOCKER_CREDENTIALS_PSW | docker login -u $DOCKER_CREDENTIALS_USR --password-stdin'
             }
         }
 
         stage('Push Docker Image') {
-            steps{
-                echo '🚀 Pushing image to Docker Hub...'
+            steps {
                 sh "docker push ${IMAGE_NAME}:${BUILD_NUMBER}"
             }
         }
@@ -33,7 +27,6 @@ pipeline {
 
     post {
         always {
-            echo '🧹 Logging out of Docker Hub...'
             sh 'docker logout'
         }
     }
