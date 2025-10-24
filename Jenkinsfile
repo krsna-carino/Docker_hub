@@ -2,7 +2,7 @@ pipeline {
     agent any
 
     environment {
-        DOCKERHUB_USER = 'krsna0707'   // change this
+        DOCKERHUB_USER = 'krsna0707'
         IMAGE_NAME = 'myapp'
         IMAGE_TAG = 'latest'
     }
@@ -18,7 +18,7 @@ pipeline {
         stage('Build JAR on Jenkins Host') {
             steps {
                 echo "Building Maven JAR on Jenkins host..."
-                sh 'mvn clean package -DskipTests'
+                sh 'cd app && mvn clean package -DskipTests'   // 👈 adjust folder name
             }
         }
 
