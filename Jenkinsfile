@@ -18,7 +18,7 @@ pipeline {
         stage('Build JAR on Jenkins Host') {
             steps {
                 echo "Building Maven JAR on Jenkins host..."
-                sh 'cd app && mvn clean package -DskipTests'   // 👈 adjust folder name
+                sh 'mvn clean package -DskipTests'
             }
         }
 
