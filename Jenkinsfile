@@ -19,7 +19,6 @@ pipeline {
             steps {
                 echo "Building Maven JAR on Jenkins host..."
                 sh 'mvn clean package -DskipTests'
-'
             }
         }
 
