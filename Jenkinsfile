@@ -35,7 +35,7 @@ pipeline {
             steps {
                 echo "Pushing Docker image to Docker Hub..."
                 script {
-                    docker.withRegistry('https://index.docker.io/v1/', 'docker-credits') {
+                    docker.withRegistry('https://index.docker.io/v1/', 'Docker-credits') {
                         docker.image("${DOCKERHUB_USER}/${IMAGE_NAME}:${IMAGE_TAG}").push()
                     }
                 }
