@@ -1,0 +1,3 @@
+git add Jenkinsfile
+git commit -m "Fix: run mvn from correct directory"
+git push
