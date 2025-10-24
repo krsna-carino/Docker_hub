@@ -1,40 +1,54 @@
 pipeline {
     agent any
+
     environment {
-        DOCKERHUB_CREDENTIALS = credentials('Docker-credits')
-        IMAGE_NAME = "krsna0707/sampleapp"
+        DOCKERHUB_USER = 'krsna0707'   // change this
+        IMAGE_NAME = 'myapp'
+        IMAGE_TAG = 'latest'
     }
+
     stages {
+        stage('Checkout') {
+            steps {
+                echo "Cloning repository from GitHub..."
+                git branch: 'main', url: 'https://github.com/krsna-carino/Docker_hub.git'
+            }
+        }
+
+        stage('Build JAR on Jenkins Host') {
+            steps {
+                echo "Building Maven JAR on Jenkins host..."
+                sh './mvnw clean package -DskipTests'
+            }
+        }
 
         stage('Build Docker Image') {
             steps {
-                sh "sudo docker build -t ${IMAGE_NAME}:${BUILD_NUMBER} ."
+                echo "Building Docker image using runtime-only Dockerfile..."
+                script {
+                    docker.build("${DOCKERHUB_USER}/${IMAGE_NAME}:${IMAGE_TAG}")
+                }
             }
         }
 
-        stage('Login to Docker Hub') {
+        stage('Push to DockerHub') {
             steps {
-                sh "echo ${DOCKERHUB_CREDENTIALS_PSW} | sudo docker login -u ${DOCKERHUB_CREDENTIALS_USR} --password-stdin"
-            }
-        }
-
-        stage('Push Docker Image') {
-            steps {
-                sh "sudo docker push ${IMAGE_NAME}:${BUILD_NUMBER}"
-            }
-        }
-
-        stage('Tag as latest') {
-            steps {
-                sh "sudo docker tag ${IMAGE_NAME}:${BUILD_NUMBER} ${IMAGE_NAME}:latest"
-                sh "sudo docker push ${IMAGE_NAME}:latest"
+                echo "Pushing Docker image to Docker Hub..."
+                script {
+                    docker.withRegistry('https://index.docker.io/v1/', 'docker-credits') {
+                        docker.image("${DOCKERHUB_USER}/${IMAGE_NAME}:${IMAGE_TAG}").push()
+                    }
+                }
             }
         }
     }
 
     post {
-        always {
-            sh "sudo docker logout"
+        success {
+            echo "✅ Build completed successfully! Docker image pushed to Docker Hub."
+        }
+        failure {
+            echo "❌ Build failed. Check the console output for details."
         }
     }
 }
